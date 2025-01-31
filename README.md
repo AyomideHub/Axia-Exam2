@@ -1,4 +1,6 @@
 # Axia-Exam2
+**Create the following APIs concerning user and their post.on**
+
 
 ## API fuctionalities
 ### 1. User account APIs

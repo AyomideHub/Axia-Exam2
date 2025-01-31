@@ -2,7 +2,7 @@ require('dotenv').config()
 const express = require('express')
 const connectdb = require('./db/connectdb')
 const cookieParser = require('cookie-parser')
-const AuthRoute = require('./routes/Auth.Route')
+const UserRoute = require('./routes/user.route')
 const PostRoute = require('./routes/post.route')
 const notFound = require('./middlewares/NotFouind')
 
@@ -20,8 +20,9 @@ app.get('/', (req, res) => {
 	res.status(200).send('<h1> Hello world </h1>')
 })
 
-app.use('/api/v1/auth', AuthRoute)
+app.use('/api/v1/user', UserRoute)
 app.use('/api/v1/post', PostRoute)
+
 
 
 // error
