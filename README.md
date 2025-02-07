@@ -1,5 +1,6 @@
 # Axia-Exam2
-**Create the following APIs concerning user and their post.on**
+**Create the following APIs concerning user and their post**
+**Basic Backend API involving basic CRUD operations, with basic error Handling middleware**
 
 
 ## API fuctionalities
@@ -17,9 +18,6 @@
        e. User gets a post.
 
 ## Documentation
-
-### Entry Endpoint 
-**GET /**
 
 ### User account APIs Endpoint
 

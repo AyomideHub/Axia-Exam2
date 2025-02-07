@@ -1,22 +1,19 @@
 const Post = require("../models/post.model");
 const { StatusCodes } = require("http-status-codes");
+const {asyncWrapper} = require("../middlewares/asyncwrapper")
+const {createError} = require('../middlewares/customError')
 
-const createPost = async (req, res) => {
+const createPost = asyncWrapper(async (req, res, next) => {
   const { title, content, tag } = req.body;
   const userId = req.user.id;
 
   if (!title || !content || !tag) {
-    return res
-      .status(StatusCodes.BAD_REQUEST)
-      .json({ success: false, msg: "All field are required" });
+    next(createError("All field are required", 400))
   }
 
   const post = await Post.findOne({ title });
-
   if (post) {
-    return res
-      .status(StatusCodes.BAD_REQUEST)
-      .json({ success: false, msg: "Post Already exist" });
+    next(createError("Post Already exist", 403))
   }
 
   const newpost = await Post.create({
@@ -31,15 +28,15 @@ const createPost = async (req, res) => {
     msg: "Post Created sucessfully",
     data: { ...newpost._doc },
   });
-};
 
-const deletePost = async (req, res) => {
+});
+
+const deletePost = asyncWrapper (async (req, res) => {
   const postId = req.params.id;
 
-  try {
     const post = await Post.findOne({ _id: postId });
     if (!post) {
-      return res.status(StatusCodes.BAD_REQUEST).json({ success: false, msg: "No post with such ID" });
+      next(createError("No post with such ID", 404))
     }
 
     const deletedPost = await Post.findOneAndDelete({ _id: postId });
@@ -49,22 +46,14 @@ const deletePost = async (req, res) => {
         .status(StatusCodes.OK)
         .json({ success: true, msg: "Post deleted sucessfully" });
     } 
+});
 
-  } catch (error) {
-    res.status(StatusCodes.BAD_REQUEST).json(error);
-  }
-};
-
-const updatePost = async (req, res) => {
+const updatePost = asyncWrapper( async (req, res) => {
   const postId = req.params.id;
 
-  try {
-    const post = await Post.findOne({ _id: postId });
-
+  const post = await Post.findOne({ _id: postId });
     if (!post) {
-      return res
-        .status(StatusCodes.BAD_REQUEST)
-        .json({ success: false, msg: "No post with such ID" });
+      rnext(createError("No post with such ID", 404))
     }
 
     const updatedPost = await Post.findOneAndUpdate({ _id: postId }, req.body, {
@@ -80,12 +69,9 @@ const updatePost = async (req, res) => {
       });
     }
    
-  } catch (error) {
-    res.status(StatusCodes.BAD_REQUEST).json(error);
-  }
-};
+});
 
-const getPosts = async (req, res) => {
+const getPosts = asyncWrapper ( async (req, res) => {
   const posts = await Post.find({}).populate("createdBy", "username email");
 
   res.status(StatusCodes.OK).json({
@@ -93,21 +79,18 @@ const getPosts = async (req, res) => {
     msg: "sucessfully",
     data: { posts, nbHits: posts.length },
   });
-};
+});
 
-const getPost = async (req, res) => {
+const getPost = asyncWrapper (async (req, res) => {
   const postId = req.params.id;
 
-  try {
     const post = await Post.findOne({ _id: postId }).populate(
       "createdBy",
       "username email"
     );
   
     if (!post) {
-      return res
-        .status(StatusCodes.BAD_REQUEST)
-        .json({ success: false, msg: "No post with such ID" });
+      next(createError("No post with such ID", 404))
     }
   
     res.status(StatusCodes.OK).json({
@@ -115,12 +98,7 @@ const getPost = async (req, res) => {
       msg: "sucessfully",
       data: { post, nbHits: post.length },
     });
-    
-  } catch (error) {
-    res.status(StatusCodes.BAD_REQUEST).json(error); 
-  }
-
-  
-};
+ 
+});
 
 module.exports = { createPost, deletePost, updatePost, getPosts, getPost };
